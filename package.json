@@ -1,5 +1,8 @@
 {
   "name": "PuzzIconGen",
+  "author": "Kazunori Tokuda",
+  "email": "norimania@gmail.com",
+  "repository": "https://github.com/5509/PuzzIconGen",
   "version": "2.0.0",
   "devDependencies": {
     "grunt": "~0.4.0",
@@ -8,7 +11,6 @@
     "grunt-contrib-sass": "~0.4.1",
     "grunt-contrib-watch": "~0.5.2",
     "grunt-contrib-coffee": "~0.7.0",
-    "grunt-contrib-copy": "~0.4.1",
     "grunt-contrib-clean": "~0.5.0"
   }
 }

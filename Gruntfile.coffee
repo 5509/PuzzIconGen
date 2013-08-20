@@ -3,6 +3,7 @@ module.exports = (grunt) ->
   grunt.task.loadTasks('_mytasks')
   grunt.loadNpmTasks('grunt-contrib-watch')
 
+  # watch
   grunt.config.set('watch', {
     sass: {
       files: ['_sources/styles/*.scss']
@@ -10,11 +11,14 @@ module.exports = (grunt) ->
     }
     coffee: {
       files: ['_sources/scripts/coffee/*.coffee']
-      tasks: ['coffee']
+      tasks: ['coffee','concat','clean']
     }
   })
+
+  # default
   grunt.registerTask('default', [
-    'concat'
     'sass'
     'coffee'
+    'concat'
+    'clean'
   ])

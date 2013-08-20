@@ -2,7 +2,8 @@
   var hoge;
 
   hoge = function() {
-    return console.log('hoge');
+    console.log('hoge');
+    return console.log('fugafuga');
   };
 
 }).call(this);

@@ -1,0 +1,2 @@
+hoge = ->
+  console.log('hoge')

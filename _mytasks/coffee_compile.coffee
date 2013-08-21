@@ -6,8 +6,14 @@ module.exports = (grunt) ->
     glob_to_multiple: {
       expand: true
       cwd: '_sources/scripts/coffee'
-      src: ['*.coffee']
-      dest: '_sources/scripts/tmp/'
+      src: [
+        'app/*.coffee'
+        'controller/*.coffee'
+        'collection/*.coffee'
+        'model/*.coffee'
+        'view/*.coffee'
+      ]
+      dest: 'scripts/tmp'
       ext: '.js'
     }
   })

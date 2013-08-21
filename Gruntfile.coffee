@@ -10,7 +10,7 @@ module.exports = (grunt) ->
       tasks: ['sass']
     }
     coffee: {
-      files: ['_sources/scripts/coffee/*.coffee']
+      files: ['_sources/scripts/coffee/**']
       tasks: ['coffee','concat','clean']
     }
   })

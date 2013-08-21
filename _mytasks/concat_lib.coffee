@@ -8,6 +8,9 @@ module.exports = (grunt) ->
   })
 
   grunt.config.set('concat', {
+    options: {
+      seperator: ';'
+    }
     lib: {
       src: [
         '<%= dirs.libSrc %>jquery-2.0.3.min.js'
@@ -17,7 +20,13 @@ module.exports = (grunt) ->
       dest: 'scripts/lib.js'
     }
     app: {
-      src: ['<%= dirs.appSrc %>*.js']
+      src: [
+        'scripts/tmp/app/*.js'
+        'scripts/tmp/controller/*.js'
+        'scripts/tmp/model/*.js'
+        'scripts/tmp/collection/*.js'
+        'scripts/tmp/view/*.js'
+      ]
       dest: 'scripts/app.js'
     }
   })

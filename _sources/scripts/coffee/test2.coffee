@@ -1,2 +1,0 @@
-fuga = ->
-  console.log('fuga')

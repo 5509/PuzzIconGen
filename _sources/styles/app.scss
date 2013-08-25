@@ -1,0 +1,85 @@
+@import 'fileSelect';
+@import 'frames';
+@import 'preview';
+
+html {
+  font-size: 16px;
+}
+html.isMobile {
+  font-size: 14px;
+}
+
+.mod-all {
+  margin: 0 auto;
+  width: 320px;
+  font-size: 0.9rem;
+
+  h1 {
+    font-size: 1rem;
+  }
+}
+
+img {
+  vertical-align: top;
+}
+
+.mod-download {
+  padding-top: 1em;
+  text-align: center;
+
+  .mod-download-link {
+    margin: 0;
+    border: 1px solid #ccc;
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+    -o-border-radius: 4px;
+    -ms-border-radius: 4px;
+    border-radius: 4px;
+    padding: 4px 10px 4px;
+    display: inline-block;
+    color: #333;
+    background: #fff;
+    background-image: url(data:image/svg+xml,%3c%3fxml%20version%3d%221%2e0%22%3f%3e%3csvg%20xmlns%3d%22http%3a%2f%2fwww%2ew3%2eorg%2f2000%2fsvg%22%20width%3d%22100%25%22%20height%3d%22100%25%22%3e%3cdefs%3e%3clinearGradient%20id%3d%22G%22%20x2%3d%220%25%22%20y2%3d%22100%25%22%3e%3cstop%20style%3d%22stop%2dcolor%3a%23fff%22%20offset%3d%220%25%22%2f%3e%3cstop%20style%3d%22stop%2dcolor%3a%23e6e6e6%22%20offset%3d%22100%25%22%2f%3e%3c%2flinearGradient%3e%3c%2fdefs%3e%3crect%20width%3d%22100%25%22%20height%3d%22100%25%22%20fill%3d%22url%28%23G%29%22%2f%3e%3c%2fsvg%3e);
+    background-image: -ms-linear-gradient(top, #fff 0%,#e6e6e6 100%);
+    background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #fff),color-stop(100%, #e6e6e6));
+    background-image: -webkit-linear-gradient(top, #fff 0%,#e6e6e6 100%);
+    background-image: -moz-linear-gradient(top, #fff 0%,#e6e6e6 100%);
+    background-image: -o-linear-gradient(top, #fff 0%,#e6e6e6 100%);
+    background-image: linear-gradient(to bottom, #fff 0%,#e6e6e6 100%);
+    -webkit-text-shadow: 0 1px 1px rgba(255,255,255,0.75);
+    -moz-text-shadow: 0 1px 1px rgba(255,255,255,0.75);
+    -o-text-shadow: 0 1px 1px rgba(255,255,255,0.75);
+    -ms-text-shadow: 0 1px 1px rgba(255,255,255,0.75);
+    text-shadow: 0 1px 1px rgba(255,255,255,0.75);
+    -webkit-box-shadow: inset 0 1px 0 rgba(255,255,255,0.2), 0 1px 2px rgba(0,0,0,0.05);
+    -moz-box-shadow: inset 0 1px 0 rgba(255,255,255,0.2), 0 1px 2px rgba(0,0,0,0.05);
+    -o-box-shadow: inset 0 1px 0 rgba(255,255,255,0.2), 0 1px 2px rgba(0,0,0,0.05);
+    -ms-box-shadow: inset 0 1px 0 rgba(255,255,255,0.2), 0 1px 2px rgba(0,0,0,0.05);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.2), 0 1px 2px rgba(0,0,0,0.05);
+    text-align: center;
+    text-decoration: none;
+
+    &.state-active {
+      border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
+      color: #fff;
+      background: #0088cc;
+      background-image: url(data:image/svg+xml,%3c%3fxml%20version%3d%221%2e0%22%3f%3e%3csvg%20xmlns%3d%22http%3a%2f%2fwww%2ew3%2eorg%2f2000%2fsvg%22%20width%3d%22100%25%22%20height%3d%22100%25%22%3e%3cdefs%3e%3clinearGradient%20id%3d%22G%22%20x2%3d%220%25%22%20y2%3d%22100%25%22%3e%3cstop%20style%3d%22stop%2dcolor%3a%230088cc%22%20offset%3d%220%25%22%2f%3e%3cstop%20style%3d%22stop%2dcolor%3a%230055cc%22%20offset%3d%22100%25%22%2f%3e%3c%2flinearGradient%3e%3c%2fdefs%3e%3crect%20width%3d%22100%25%22%20height%3d%22100%25%22%20fill%3d%22url%28%23G%29%22%2f%3e%3c%2fsvg%3e);
+      background-image: -ms-linear-gradient(top, #0088cc 0%,#0055cc 100%);
+      background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #0088cc),color-stop(100%, #0055cc));
+      background-image: -webkit-linear-gradient(top, #0088cc 0%,#0055cc 100%);
+      background-image: -moz-linear-gradient(top, #0088cc 0%,#0055cc 100%);
+      background-image: -o-linear-gradient(top, #0088cc 0%,#0055cc 100%);
+      background-image: linear-gradient(to bottom, #0088cc 0%,#0055cc 100%);
+      -webkit-text-shadow: 0 -1px 0 rgba(0,0,0,0.25);
+      -moz-text-shadow: 0 -1px 0 rgba(0,0,0,0.25);
+      -o-text-shadow: 0 -1px 0 rgba(0,0,0,0.25);
+      -ms-text-shadow: 0 -1px 0 rgba(0,0,0,0.25);
+      text-shadow: 0 -1px 0 rgba(0,0,0,0.25);
+    }
+  }
+}
+
+.copy {
+  font-size: 0.8rem;
+  text-align: center;
+}

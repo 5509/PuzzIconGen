@@ -1,8 +1,8 @@
 class PIG.Model.Frame extends Backbone.Model
 
-  _DIR       : 'images/'
-  _PREFIX    : 'pazu_frame_'
-  _EXTENSION : '.png'
+  DIR       : 'images/'
+  PREFIX    : 'pazu_frame_'
+  EXTENSION : '.png'
 
   defaults: {
     path    : null
@@ -11,5 +11,5 @@ class PIG.Model.Frame extends Backbone.Model
 
   initialize: ->
     @set({
-      imgPath: "#{@_DIR}#{@_PREFIX}#{@get('path')}#{@_EXTENSION}"
+      imgPath: "#{@DIR}#{@PREFIX}#{@get('path')}#{@EXTENSION}"
     })

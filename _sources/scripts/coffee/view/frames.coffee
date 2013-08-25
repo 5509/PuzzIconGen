@@ -1,4 +1,5 @@
 class PIG.View.Frames extends Backbone.View
+  className: 'mod-frames-wrapper'
 
   events: {
     'click input': '_onClickRadio'
@@ -6,6 +7,15 @@ class PIG.View.Frames extends Backbone.View
 
   initialize: (frames) ->
     @render(frames)
+
+    $frames = @$el.find('.mod-frame')
+    $defaultFrame = $frames.first().find('input').prop('checked', 'checked')
+    $defaultFramePath = $defaultFrame.val()
+
+    _.defer( ->
+      PIG.events.trigger('set:frame', $defaultFramePath)
+    )
+
     #@hide()
 
   render: (frames) ->
@@ -19,11 +29,11 @@ class PIG.View.Frames extends Backbone.View
 
   _onClickRadio: (ev) ->
     $input = $(ev.target).closest('input')
-    console.log($input.attr('value'))
+    PIG.events.trigger('select:frame', $input.val())
 
   temp: """
 <% _.each(attrs, function(coll, key) { %>
-<p class=\"mod-alt\"><%= coll.getName() %></p>
+<p class=\"mod-alt attr-<%= key %>\"><%= coll.getName() %></p>
 <ul class=\"mod-frames\">
   <% coll.each(function(model) { %>
   <li class=\"mod-frame\">
@@ -31,7 +41,7 @@ class PIG.View.Frames extends Backbone.View
       <input type=\"radio\"
         name=\"frame\"
         value=\"<%= model.get('imgPath') %>\"><br>
-      <img src=\"<%= model.get('imgPath') %>\" width=\"35\">
+      <img src=\"<%= model.get('imgPath') %>\" width=\"30\">
     </label>
   </li>
   <% }); %>

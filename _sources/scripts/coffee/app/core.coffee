@@ -1,3 +1,4 @@
+# Puzzle and Dragons Icon Generator
 window.PIG = {}
 PIG.Controller = {}
 PIG.Model = {}

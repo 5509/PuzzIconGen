@@ -170,8 +170,14 @@
       this.listenTo(events, 'set:frame', function(frame) {
         return appFrame.setFrame(frame);
       });
-      return this.listenTo(events, 'create:file', function(data) {
+      this.listenTo(events, 'create:file', function(data) {
         return appFrame.setDownload(data);
+      });
+      this.listenTo(events, 'set:mode', function(mode) {
+        return appFrame.setMode(mode);
+      });
+      return this.listenTo(events, 'set:modeValue', function(value) {
+        return appFrame.setModeValue(value);
       });
     };
 
@@ -247,7 +253,10 @@
         y: 0
       },
       frameSrc: null,
-      iconFrameImage: null
+      iconFrameImage: null,
+      mode: null,
+      'modeValue-lv': 99,
+      'modeValue-plus': 297
     };
 
     return Preview;
@@ -341,6 +350,14 @@
       return this.renderLink(file);
     };
 
+    AppFrame.prototype.setMode = function(mode) {
+      return this.preview.setMode(mode);
+    };
+
+    AppFrame.prototype.setModeValue = function(value) {
+      return this.preview.setModeValue(value);
+    };
+
     AppFrame.prototype.tmpLinkInavtive = "<p class=\"mod-download\">\n  <a href=\"javascript:void(0)\"\n     class=\"mod-download-link\"\n  >ダウンロードする</a>\n</p>";
 
     AppFrame.prototype.tmpLinkActive = "<a href=\"<%= href %>\"\n   download=\"<%= fileName %>\"\n   target=\"_blank\"\n   class=\"mod-download-link state-active\"\n>ダウンロードする</a>";
@@ -371,7 +388,10 @@
       'click input[type="checkbox"]': '_onClickCheckbox',
       'drop': '_onDrop',
       'dragenter': '_onDragEnter',
-      'dragover': '_onDragOver'
+      'dragover': '_onDragOver',
+      'click input[type="radio"]': '_onClickRadio',
+      'keyup input[data-pig-text]': '_onChangePIGRadio',
+      'change input[data-pig-text]': '_onChangePIGRadio'
     };
 
     FileSelect.prototype.initialize = function() {
@@ -401,7 +421,9 @@
     };
 
     FileSelect.prototype.render = function() {
-      return this.$el.html(_.template(this.temp));
+      this.$el.html(this.temp);
+      this.$lv = this.$el.find('[name="lv-text"]').hide();
+      return this.$plus = this.$el.find('[name="plus-text"]').hide();
     };
 
     FileSelect.prototype._onChangeFile = function(ev) {
@@ -417,7 +439,45 @@
       return PIG.events.trigger('set:fitScale', $checkbox.is(':checked'));
     };
 
-    FileSelect.prototype.temp = "<div class=\"mod-dropArea\">\n  <p><input type=\"file\"></p>\n  <p><label><input type=\"checkbox\"> 画像を枠にフィットさせる</label><p>\n</div>";
+    FileSelect.prototype._onClickRadio = function(ev) {
+      var $radio, label;
+      $radio = $(ev.target).closest('input');
+      label = $radio.data('pig-radio') || null;
+      if (label === 'lv') {
+        this.$plus.hide();
+        this.$lv.show();
+      } else if (label === 'plus') {
+        this.$lv.hide();
+        this.$plus.show();
+      } else {
+        this.$lv.hide();
+        this.$plus.hide();
+      }
+      return PIG.events.trigger('set:mode', label);
+    };
+
+    FileSelect.prototype._onChangePIGRadio = function(ev) {
+      var $input, mode, value;
+      $input = $(ev.target).closest('input');
+      mode = $input.data('pig-text');
+      value = parseInt($input.val());
+      if (mode === 'lv') {
+        if (99 < value) {
+          $input.val(99);
+        } else if (value <= 0) {
+          $input.val(1);
+        }
+      } else if (mode === 'plus') {
+        if (297 < value) {
+          $input.val(297);
+        } else if (value <= 0) {
+          $input.val(1);
+        }
+      }
+      return PIG.events.trigger('set:modeValue', value);
+    };
+
+    FileSelect.prototype.temp = "<div class=\"mod-dropArea\">\n  <p><input type=\"file\"></p>\n  <p><label><input type=\"checkbox\"> 画像を枠にフィットさせる</label><p>\n  <div>\n    <ul>\n      <li><label><input type=\"radio\" name=\"radio\" data-pig-radio=\"\" checked> 何も付けない</label></li>\n      <li><label><input type=\"radio\" name=\"radio\" data-pig-radio=\"lv\"> Lv.を表示する</label></li>\n      <li><label><input type=\"radio\" name=\"radio\" data-pig-radio=\"plus\"> +値を表示する</label></li>\n    </ul>\n    <input type=\"number\" name=\"lv-text\" data-pig-text=\"lv\" min=\"1\" max=\"99\" value=\"99\">\n    <input type=\"number\" name=\"plus-text\" data-pig-text=\"plus\" min=\"1\" max=\"297\" value=\"297\">\n  </div>\n</div>";
 
     return FileSelect;
 
@@ -502,14 +562,23 @@
 
     Preview.prototype.CANVAS_SIZE = 98;
 
+    Preview.prototype.ICON_SIZE = 98;
+
+    Preview.prototype.CANVAS_HAS_TEXT_SIZE = 104;
+
+    Preview.prototype.CANVAS_HASNT_TEXT_SIZE = 98;
+
+    Preview.prototype.CANVAS_WIDTH = 104;
+
+    Preview.prototype.CANVAS_HEIGHT = 104;
+
     Preview.prototype.initialize = function() {
       this.dragStart = false;
       this.model = new PIG.Model.Preview();
       this.render();
       this._initReader();
       this._initCanvas();
-      this._eventify();
-      return this.hide();
+      return this._eventify();
     };
 
     Preview.prototype.events = (function() {
@@ -560,8 +629,17 @@
       this.listenTo(this.model, 'change:frameSrc', function(model, frameSrc) {
         return _this._loadImage(frameSrc, 'frame');
       });
-      return this.listenTo(this.model, 'set:image', function() {
-        return this._drawIcon();
+      this.listenTo(this.model, 'set:image', function() {
+        return _this._drawIcon();
+      });
+      this.listenTo(this.model, 'change:mode', function() {
+        return _this._drawIcon();
+      });
+      this.listenTo(this.model, 'change:modeValue-lv', function() {
+        return _this._drawIcon();
+      });
+      return this.listenTo(this.model, 'change:modeValue-plus', function() {
+        return _this._drawIcon();
       });
     };
 
@@ -646,7 +724,7 @@
     };
 
     Preview.prototype._drawIcon = function() {
-      var base, baseHeight, baseWidth, canvas, ctx, diffHeight, diffWidth, fitHeight, fitPosLeft, fitPosTop, fitWidth, frame, height, icon, iconPos, isLargerThanCanvas, movedX, movedY, scale, width, x, y;
+      var adjust, base, baseHeight, baseWidth, canvas, canvas_size, ctx, diffHeight, diffWidth, fitHeight, fitPosLeft, fitPosTop, fitWidth, frame, height, icon, iconPos, isLargerThanCanvas, movedX, movedY, scale, width, x, y;
       ctx = this.ctx;
       canvas = this.canvas;
       iconPos = this.model.get('iconPos');
@@ -658,23 +736,30 @@
       if (!icon || !frame) {
         return;
       }
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      isLargerThanCanvas = this.CANVAS_SIZE < width || this.CANVAS_SIZE < height;
+      if (this.model.get('mode')) {
+        canvas_size = this.CANVAS_HAS_TEXT_SIZE;
+      } else {
+        canvas_size = this.CANVAS_HASNT_TEXT_SIZE;
+      }
+      ctx.clearRect(0, 0, canvas_size, canvas_size);
+      adjust = 98 < canvas_size ? (canvas_size - this.ICON_SIZE) / 2 : 0;
+      console.log(adjust);
+      isLargerThanCanvas = this.ICON_SIZE < width || this.ICON_SIZE < height;
       if (this.model.get('isFitScale') && isLargerThanCanvas) {
         base = width < height;
         if (base) {
-          fitWidth = width * this.CANVAS_SIZE / height;
-          fitHeight = this.CANVAS_SIZE;
+          fitWidth = width * this.ICON_SIZE / height;
+          fitHeight = this.ICON_SIZE;
           fitPosTop = 0;
-          fitPosLeft = this.CANVAS_SIZE / 2 - fitWidth / 2;
+          fitPosLeft = this.ICON_SIZE / 2 - fitWidth / 2 + adjust;
         } else {
-          fitWidth = this.CANVAS_SIZE;
-          fitHeight = height * this.CANVAS_SIZE / width;
-          fitPosTop = this.CANVAS_SIZE / 2 - fitHeight / 2;
-          fitPosLeft = 0;
+          fitWidth = this.ICON_SIZE;
+          fitHeight = height * this.ICON_SIZE / width;
+          fitPosTop = this.ICON_SIZE / 2 - fitHeight / 2;
+          fitPosLeft = adjust;
         }
-        canvas.setAttribute('width', this.CANVAS_SIZE);
-        canvas.setAttribute('height', this.CANVAS_SIZE);
+        canvas.setAttribute('width', canvas_size);
+        canvas.setAttribute('height', canvas_size);
         ctx.drawImage(icon, fitPosLeft, fitPosTop, fitWidth, fitHeight);
       } else {
         baseWidth = width;
@@ -689,11 +774,18 @@
         movedY = iconPos.y + y;
         icon.setAttribute('width', width);
         icon.setAttribute('height', height);
-        canvas.setAttribute('width', this.CANVAS_SIZE);
-        canvas.setAttribute('height', this.CANVAS_SIZE);
+        canvas.setAttribute('width', canvas_size);
+        canvas.setAttribute('height', canvas_size);
         ctx.drawImage(icon, movedX, movedY, width, height);
       }
-      ctx.drawImage(frame, 0, 0, this.CANVAS_SIZE, this.CANVAS_SIZE);
+      if (adjust !== 0) {
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, (canvas_size - this.ICON_SIZE) / 2, this.ICON_SIZE);
+        ctx.fillRect(canvas_size - (canvas_size - this.ICON_SIZE) / 2, 0, (canvas_size - this.ICON_SIZE) / 2, this.ICON_SIZE);
+        ctx.fillRect(0, this.ICON_SIZE, canvas_size, canvas_size - this.ICON_SIZE);
+      }
+      ctx.drawImage(frame, adjust, 0, this.ICON_SIZE, this.ICON_SIZE);
+      this._onRenderText();
       return this._createFile();
     };
 
@@ -738,6 +830,41 @@
       });
     };
 
+    Preview.prototype._onRenderText = function() {
+      var canvas_size, ctx, frontFillStyle, mode, value;
+      mode = this.model.get('mode');
+      value = this.model.get("modeValue-" + (this.model.get('mode')));
+      canvas_size = this.CANVAS_HAS_TEXT_SIZE;
+      ctx = this.ctx;
+      ctx.font = "22px KurokaneStd-EB";
+      ctx.textAlign = 'center';
+      frontFillStyle = '#f0ff00';
+      ctx.shadowColor = '#000000';
+      ctx.shadowBlur = 0;
+      if (!mode) {
+        return;
+      }
+      if (mode === 'lv') {
+        if (value === 99) {
+          value = '最大';
+        } else {
+          frontFillStyle = '#ffffff';
+        }
+        value = 'Lv.' + value;
+      } else {
+        value = '+' + value;
+      }
+      console.log('mode value', mode, value);
+      ctx.fillStyle = '#000000';
+      ctx.fillText(value, canvas_size / 2 - 2, canvas_size + 2 - 4);
+      ctx.fillText(value, canvas_size / 2 - 2, canvas_size - 2 - 4);
+      ctx.fillText(value, canvas_size / 2 + 2, canvas_size + 2 - 4);
+      ctx.fillText(value, canvas_size / 2 + 2, canvas_size - 2 - 4);
+      ctx.fillStyle = frontFillStyle;
+      ctx.shadowBlur = 0;
+      return ctx.fillText(value, canvas_size / 2, canvas_size - 4);
+    };
+
     Preview.prototype.render = function() {
       this.$el.append(this.temp);
       return this.$scaleBar = this.$el.find('.mod-scaleRange');
@@ -763,6 +890,14 @@
 
     Preview.prototype.setScale = function(scale) {
       return this.model.set('scale', scale);
+    };
+
+    Preview.prototype.setMode = function(mode) {
+      return this.model.set('mode', mode);
+    };
+
+    Preview.prototype.setModeValue = function(value) {
+      return this.model.set("modeValue-" + (this.model.get('mode')), value);
     };
 
     Preview.prototype.show = function() {

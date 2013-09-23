@@ -40,6 +40,12 @@ class PIG.View.AppFrame extends Backbone.View
   setDownload: (file) ->
     @renderLink(file)
 
+  setMode: (mode) ->
+    @preview.setMode(mode)
+
+  setModeValue: (value) ->
+    @preview.setModeValue(value)
+
   tmpLinkInavtive: """
 <p class=\"mod-download\">
   <a href=\"javascript:void(0)\"

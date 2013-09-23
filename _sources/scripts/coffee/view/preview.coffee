@@ -4,6 +4,11 @@ class PIG.View.Preview extends Backbone.View
   className: 'mod-preview'
 
   CANVAS_SIZE: 98
+  ICON_SIZE: 98
+  CANVAS_HAS_TEXT_SIZE: 104
+  CANVAS_HASNT_TEXT_SIZE: 98
+  CANVAS_WIDTH: 104
+  CANVAS_HEIGHT: 104
 
   initialize: ->
 
@@ -16,7 +21,7 @@ class PIG.View.Preview extends Backbone.View
     @_initCanvas()
     @_eventify()
 
-    @hide()
+    #@hide()
 
   events: do ->
     # モバイル振り分け
@@ -62,7 +67,16 @@ class PIG.View.Preview extends Backbone.View
     @listenTo(@model, 'change:frameSrc', (model, frameSrc) =>
       @_loadImage(frameSrc, 'frame')
     )
-    @listenTo(@model, 'set:image', ->
+    @listenTo(@model, 'set:image', =>
+      @_drawIcon()
+    )
+    @listenTo(@model, 'change:mode', =>
+      @_drawIcon()
+    )
+    @listenTo(@model, 'change:modeValue-lv', =>
+      @_drawIcon()
+    )
+    @listenTo(@model, 'change:modeValue-plus', =>
       @_drawIcon()
     )
 
@@ -169,26 +183,33 @@ class PIG.View.Preview extends Backbone.View
     if ( not icon || not frame )
       return
 
-    ctx.clearRect(0, 0, canvas.width, canvas.height)
+    if ( @model.get('mode') )
+      canvas_size = @CANVAS_HAS_TEXT_SIZE
+    else
+      canvas_size = @CANVAS_HASNT_TEXT_SIZE
 
+    ctx.clearRect(0, 0, canvas_size, canvas_size)
+
+    adjust = if 98 < canvas_size then (canvas_size - @ICON_SIZE) / 2 else 0
+    console.log(adjust)
     # アイコンのレンダリング
-    isLargerThanCanvas = @CANVAS_SIZE < width or @CANVAS_SIZE < height
+    isLargerThanCanvas = @ICON_SIZE < width or @ICON_SIZE < height
     if ( @model.get('isFitScale') and isLargerThanCanvas )
       # 横と縦、長い方がベースになる
       base = width < height
       if ( base )
-        fitWidth = width * @CANVAS_SIZE / height
-        fitHeight = @CANVAS_SIZE
+        fitWidth = width * @ICON_SIZE / height
+        fitHeight = @ICON_SIZE
         fitPosTop = 0
-        fitPosLeft = @CANVAS_SIZE / 2 - fitWidth / 2
+        fitPosLeft = @ICON_SIZE / 2 - fitWidth / 2 + adjust
       else
-        fitWidth = @CANVAS_SIZE
-        fitHeight = height * @CANVAS_SIZE / width
-        fitPosTop = @CANVAS_SIZE / 2 - fitHeight / 2
-        fitPosLeft = 0
+        fitWidth = @ICON_SIZE
+        fitHeight = height * @ICON_SIZE / width
+        fitPosTop = @ICON_SIZE / 2 - fitHeight / 2
+        fitPosLeft = adjust
 
-      canvas.setAttribute('width', @CANVAS_SIZE)
-      canvas.setAttribute('height', @CANVAS_SIZE)
+      canvas.setAttribute('width', canvas_size)
+      canvas.setAttribute('height', canvas_size)
       ctx.drawImage(icon, fitPosLeft, fitPosTop, fitWidth, fitHeight)
     else
       # base scale
@@ -209,14 +230,21 @@ class PIG.View.Preview extends Backbone.View
 
       icon.setAttribute('width', width)
       icon.setAttribute('height', height)
-      canvas.setAttribute('width', @CANVAS_SIZE)
-      canvas.setAttribute('height', @CANVAS_SIZE)
+      canvas.setAttribute('width', canvas_size)
+      canvas.setAttribute('height', canvas_size)
 
       ctx.drawImage(icon, movedX, movedY, width, height)
 
-    # フレームのレンダリング
-    ctx.drawImage(frame, 0, 0, @CANVAS_SIZE, @CANVAS_SIZE)
+    if ( adjust isnt 0 )
+      ctx.fillStyle = '#ffffff'
+      ctx.fillRect(0, 0, (canvas_size - @ICON_SIZE) / 2, @ICON_SIZE)
+      ctx.fillRect(canvas_size - (canvas_size - @ICON_SIZE) / 2, 0, (canvas_size - @ICON_SIZE) / 2, @ICON_SIZE)
+      ctx.fillRect(0, @ICON_SIZE, canvas_size, canvas_size - @ICON_SIZE)
 
+    # フレームのレンダリング
+    ctx.drawImage(frame, adjust, 0, @ICON_SIZE, @ICON_SIZE)
+
+    @_onRenderText()
     @_createFile()
 
   _loadImage: (src, target) -> # target: icon or frame
@@ -258,6 +286,40 @@ class PIG.View.Preview extends Backbone.View
       fileName: "puzzIconGen_#{+(new Date)}_.#{fileType}"
     })
 
+  _onRenderText: ->
+    mode = @model.get('mode')
+    value = @model.get("modeValue-#{@model.get('mode')}")
+    canvas_size = @CANVAS_HAS_TEXT_SIZE
+    ctx = @ctx
+    ctx.font = "22px KurokaneStd-EB"# NTモトヤバーチ Std W3"
+    ctx.textAlign = 'center'
+    frontFillStyle = '#f0ff00'
+    ctx.shadowColor = '#000000'
+    ctx.shadowBlur = 0
+
+    if ( not mode )
+      return
+
+    if ( mode is 'lv' )
+      if ( value is 99 )
+        value = '最大'
+      else
+        frontFillStyle = '#ffffff'
+      value = 'Lv.' + value
+    else
+      value = '+' + value
+
+    console.log('mode value', mode, value)
+    ctx.fillStyle = '#000000'
+    ctx.fillText(value, canvas_size/2 - 2, canvas_size + 2 - 4)
+    ctx.fillText(value, canvas_size/2 - 2, canvas_size - 2 - 4)
+    ctx.fillText(value, canvas_size/2 + 2, canvas_size + 2 - 4)
+    ctx.fillText(value, canvas_size/2 + 2, canvas_size - 2 - 4)
+
+    ctx.fillStyle = frontFillStyle
+    ctx.shadowBlur = 0
+    ctx.fillText(value, canvas_size/2, canvas_size - 4)
+
   render: ->
     @$el.append(@temp)
     @$scaleBar = @$el.find('.mod-scaleRange')
@@ -278,6 +340,12 @@ class PIG.View.Preview extends Backbone.View
 
   setScale: (scale) ->
     @model.set('scale', scale)
+
+  setMode: (mode) ->
+    @model.set('mode', mode)
+
+  setModeValue: (value) ->
+    @model.set("modeValue-#{@model.get('mode')}", value)
 
   show: ->
     @$el.show()

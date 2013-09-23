@@ -27,6 +27,7 @@ class PIG.Controller.Puzz extends PIG.Controller.Base
     @render()
     @_eventify()
 
+  # Viewのイベントは全てグローバルのイベントをここでlistenする
   _eventify: ->
     events = PIG.events
     appFrame = @view.appFrame
@@ -48,6 +49,12 @@ class PIG.Controller.Puzz extends PIG.Controller.Base
     )
     @listenTo(events, 'create:file', (data) =>
       appFrame.setDownload(data)
+    )
+    @listenTo(events, 'set:mode', (mode) =>
+      appFrame.setMode(mode)
+    )
+    @listenTo(events, 'set:modeValue', (value) =>
+      appFrame.setModeValue(value)
     )
 
   render: ->

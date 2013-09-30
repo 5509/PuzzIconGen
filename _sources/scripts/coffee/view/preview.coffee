@@ -7,87 +7,92 @@ class PIG.View.Preview extends Backbone.View
   ICON_SIZE: 98
   CANVAS_HAS_TEXT_SIZE: 104
   CANVAS_HASNT_TEXT_SIZE: 98
-  CANVAS_WIDTH: 104
-  CANVAS_HEIGHT: 104
 
-  initialize: ->
+  initialize: (attr) ->
 
     @dragStart = false
 
-    @model = new PIG.Model.Preview()
+    @model = attr.model
+    @$el = $('.frame_area')
+    @el = @$el.get(0)
 
-    @render()
-    @_initReader()
     @_initCanvas()
     @_eventify()
 
-    #@hide()
-
-  events: do ->
-    # モバイル振り分け
-    if ( PIG.isMobile() )
-      events = {
-        'touchstart canvas' : '_onDragStart'
-        'touchmove  canvas' : '_onDragMove'
-        'touchend   canvas' : '_onDragEnd'
-      }
-    else
-      events = {
-        'mousedown  canvas' : '_onDragStart'
-        'mousemove  canvas' : '_onDragMove'
-        'mouseup    canvas' : '_onDragEnd'
-      }
-
-    return _.extend(events, {
-      'change input[type="range"]'   : '_onChangeRange'
-    })
+    @_loadImage(@model.get('iconSrc'), 'icon')
+    @_loadImage(@model.get('path'), 'frame')
 
   _eventify: ->
-    @listenTo(@model, 'change:isFitScale', =>
-      # サイズ調整バーの表示非表示
-      isFitScale = @model.get('isFitScale')
-      if ( isFitScale )
-        @_hideScaleBar()
-      else
-        @_showScaleBar()
 
-      try
-        @_drawIcon()
-      catch e
+    if ( PIG.isMobile() )
+      @$el
+        .on('touchstart', 'canvas', (ev) =>
+          @_onDragStart(ev)
+        )
+        .on('touchmove', 'canvas', (ev) =>
+          @_onDragMove(ev)
+        )
+        .on('touchEnd', 'canvas', (ev) =>
+          @_onDragEnd(ev)
+        )
+    else
+      @$el
+        .on('mousedown', 'canvas', (ev) =>
+          @_onDragStart(ev)
+        )
+        .on('mousemove', 'canvas', (ev) =>
+          @_onDragMove(ev)
+        )
+        .on('mouseup', 'canvas', (ev) =>
+          @_onDragEnd(ev)
+        )
+
+    @listenTo(@model, 'change:main', =>
+      @_drawIcon()
     )
+
+    @listenTo(@model, 'change:sub', =>
+      @_drawIcon()
+    )
+
+    @listenTo(@model, 'change:iconSrc', =>
+      @_prepareIcon()
+    )
+
+    @listenTo(@model, 'ready', =>
+      #@_loadImage(@model.get('iconSrc'), 'icon')
+      @_loadImage(@model.get('path'), 'frame')
+    )
+
+    @listenTo(@model, 'change:path', =>
+      @_loadImage(@model.get('path'), 'frame')
+    )
+
     @listenTo(@model, 'change:iconPos', =>
       @_drawIcon()
     )
-    @listenTo(@model, 'change:scale', =>
-      @_drawIcon()
-    )
-    @listenTo(@model, 'change:iconSrc', (model, iconSrc) =>
-      @_loadImage(iconSrc, 'icon')
-    )
-    @listenTo(@model, 'change:frameSrc', (model, frameSrc) =>
-      @_loadImage(frameSrc, 'frame')
-    )
+
     @listenTo(@model, 'set:image', =>
       @_drawIcon()
     )
+
+    @listenTo(@model, 'change:scale', =>
+      @_drawIcon()
+    )
+
+    @listenTo(@model, 'change:value', =>
+      @_drawIcon()
+    )
+
     @listenTo(@model, 'change:mode', =>
-      @_drawIcon()
-    )
-    @listenTo(@model, 'change:modeValue-lv', =>
-      @_drawIcon()
-    )
-    @listenTo(@model, 'change:modeValue-plus', =>
+      if ( @model.get('mode') )
+        return
       @_drawIcon()
     )
 
-  _initReader: ->
-    @reader = new FileReader()
-    @reader.addEventListener('load', =>
-      @_onLoadReader()
-    , false)
-
-  _onLoadReader: ->
-    @model.set('iconSrc', @reader.result)
+    @listenTo(@model, 'change:ready', =>
+      $('.loading').fadeOut(500)
+    )
 
   _getClientPos: (ev) ->
     # originalEventに元のeventが入っている
@@ -107,9 +112,8 @@ class PIG.View.Preview extends Backbone.View
       }
 
   _onDragStart: (ev) ->
-
-    # isFitScaleがオンのときはドラッグできない
-    if ( @model.get('isFitScale') )
+    # スケールが1のときはドラッグできない
+    if ( @model.get('scale') is 1 )
       return
 
     ev.preventDefault()
@@ -151,24 +155,25 @@ class PIG.View.Preview extends Backbone.View
 
   _onChangeRange: (ev) ->
     $range = $(ev.target).closest('input')
+    scale = parseInt($range.val(), 10)
+    PIG.events.trigger('set:scale', scale)
 
-    min = $range.prop('min') or 0
-    max = $range.prop('max') or 100
-    def = max / 2
-    val = $range.val()
+  _prepareIcon: ->
+    img = new Image()
+    file = @model.get('file')
 
-    # 5 = 1
-    #
-    # ** increase
-    # 5 5.1 5.2 ... 9.8 9.9 10
-    # 1 1.2 1.3 ... 5.8 5.9 6
-    #
-    # ** decrease
-    # 4.9 4.8 ... 0.2 0.1 0
-    # (5 - x) * 0.02
-    # 0.98 0.96 ... 0.04 0.02 0
-    scale = if 5 <= val then val - (def - 1) else 1 - ((5 - val) * (1 / def))
-    PIG.events.trigger('set:scale', scale || 0.02)
+    # iPhoneで撮影した画像で500KBを超えているもの
+    # 別途処理する、ついでにOrientationも正しい値にしておく
+    if ( 500000 < parseInt(file?.size, 10) )
+      new MegaPixImage(file).render(img, { maxWidth: 1280, orientation: @model.get('orientation') });
+
+      (chk = =>
+        if ( img.src )
+          return @_loadImage(img.src, 'icon')
+        setTimeout(chk, 100)
+      )()
+    else
+      @_loadImage(@model.get('iconSrc'), 'icon')
 
   _drawIcon: ->
     ctx = @ctx
@@ -179,61 +184,73 @@ class PIG.View.Preview extends Backbone.View
     width = @model.get('iconBaseWidth')
     height = @model.get('iconBaseHeight')
     frame = @model.get('iconFrameImage')
+    fitWidth = undefined
+    fitHeight = undefined
+    fitPosTop = undefined
+    fitPosLeft = undefined
+    canvas_size = undefined
+    adjust = undefined
+    space = undefined
+    pos = undefined
+    base = undefined
+    getFitProp = =>
+      if ( @model.get('mode') )
+        canvas_size = @CANVAS_HAS_TEXT_SIZE
+      else
+        canvas_size = @CANVAS_HASNT_TEXT_SIZE
+      ctx.clearRect(0, 0, canvas_size, canvas_size)
+      adjust = if 98 < canvas_size then (canvas_size - @ICON_SIZE) / 2 else 0
+      base = width < height
+      if ( base )
+        fitWidth = width * @ICON_SIZE / height * scale
+        fitHeight = @ICON_SIZE * scale
+        fitPosTop = 0
+        fitPosLeft = @ICON_SIZE / 2 - fitWidth / 2 + adjust
+
+        space = (@ICON_SIZE - fitWidth) / 2
+        pos = space + fitWidth
+      else
+        fitWidth = @ICON_SIZE * scale
+        fitHeight = height * @ICON_SIZE / width * scale
+        fitPosTop = @ICON_SIZE / 2 - fitHeight / 2
+        fitPosLeft = adjust
+
+        space = (@ICON_SIZE - fitHeight) / 2
+        pos = space + fitHeight
 
     if ( not icon || not frame )
       return
 
-    if ( @model.get('mode') )
-      canvas_size = @CANVAS_HAS_TEXT_SIZE
-    else
-      canvas_size = @CANVAS_HASNT_TEXT_SIZE
-
-    ctx.clearRect(0, 0, canvas_size, canvas_size)
-
-    adjust = if 98 < canvas_size then (canvas_size - @ICON_SIZE) / 2 else 0
-    console.log(adjust)
     # アイコンのレンダリング
-    isLargerThanCanvas = @ICON_SIZE < width or @ICON_SIZE < height
-    if ( @model.get('isFitScale') and isLargerThanCanvas )
-      # 横と縦、長い方がベースになる
-      base = width < height
-      if ( base )
-        fitWidth = width * @ICON_SIZE / height
-        fitHeight = @ICON_SIZE
-        fitPosTop = 0
-        fitPosLeft = @ICON_SIZE / 2 - fitWidth / 2 + adjust
-      else
-        fitWidth = @ICON_SIZE
-        fitHeight = height * @ICON_SIZE / width
-        fitPosTop = @ICON_SIZE / 2 - fitHeight / 2
-        fitPosLeft = adjust
-
+    if ( @model.get('scale') is 1 )
+      # スケールが1になった場合は移動をリセット
+      @model.set('iconPos', {
+        x: 0,
+        y: 0
+      }, { silent: true })
+      getFitProp()
       canvas.setAttribute('width', canvas_size)
       canvas.setAttribute('height', canvas_size)
+
+      ctx.drawImage(icon, movedX, movedY, fitWidth, fitHeight)
       ctx.drawImage(icon, fitPosLeft, fitPosTop, fitWidth, fitHeight)
-    else
-      # base scale
-      baseWidth = width
-      baseHeight = height
-      # set scale
-      width = width * scale
-      height = height * scale
-      # diff
-      diffWidth = width - baseWidth
-      diffHeight = height - baseHeight
-      # diffPos
-      x = -diffWidth / 2
-      y = -diffHeight / 2
-      # movedPos
-      movedX = iconPos.x + x
-      movedY = iconPos.y + y
+      ctx.fillStyle = '#ffffff'
 
-      icon.setAttribute('width', width)
-      icon.setAttribute('height', height)
+      # 写真周りの白縁
+      if ( base )
+        ctx.fillRect(0, 0, space, @ICON_SIZE)
+        ctx.fillRect(pos, 0, space, @ICON_SIZE)
+      else
+        ctx.fillRect(0, 0, @ICON_SIZE, space)
+        ctx.fillRect(0, pos, @ICON_SIZE, space)
+    else
+      getFitProp()
+      movedX = iconPos.x
+      movedY = iconPos.y
       canvas.setAttribute('width', canvas_size)
       canvas.setAttribute('height', canvas_size)
 
-      ctx.drawImage(icon, movedX, movedY, width, height)
+      ctx.drawImage(icon, movedX, movedY, fitWidth, fitHeight)
 
     if ( adjust isnt 0 )
       ctx.fillStyle = '#ffffff'
@@ -248,9 +265,11 @@ class PIG.View.Preview extends Backbone.View
     @_createFile()
 
   _loadImage: (src, target) -> # target: icon or frame
-    img = document.createElement('img')
+    img = new Image()
 
     _onImgLoad = =>
+      if ( not @model.get('ready') )
+        @model.set('ready', true)
       # アイコンの場合
       if ( target is 'icon')
         @model.set({
@@ -272,26 +291,24 @@ class PIG.View.Preview extends Backbone.View
     img.addEventListener('load', _onImgLoad, false)
 
   _initCanvas: ->
-    @canvas = document.createElement('canvas')
-    @canvas.setAttribute('class', 'mod-canvas-icon')
-    @$el.find('.mod-canvas').append(@canvas)
+    @canvas = $('canvas').get(0)
     @ctx = @canvas.getContext('2d')
 
   _createFile: ->
     dataURL = @canvas.toDataURL(@model.get('type'))
     fileType= @model.get('type').replace('image/', '') or 'png'
 
-    PIG.events.trigger('create:file', {
+    @trigger('create:file', {
       href: dataURL
       fileName: "puzzIconGen_#{+(new Date)}_.#{fileType}"
     })
 
   _onRenderText: ->
     mode = @model.get('mode')
-    value = @model.get("modeValue-#{@model.get('mode')}")
+    value = @model.get("value")
     canvas_size = @CANVAS_HAS_TEXT_SIZE
     ctx = @ctx
-    ctx.font = "22px KurokaneStd-EB"# NTモトヤバーチ Std W3"
+    ctx.font = "22px kurokane"
     ctx.textAlign = 'center'
     frontFillStyle = '#f0ff00'
     ctx.shadowColor = '#000000'
@@ -309,8 +326,8 @@ class PIG.View.Preview extends Backbone.View
     else
       value = '+' + value
 
-    console.log('mode value', mode, value)
     ctx.fillStyle = '#000000'
+    # 文字外枠
     ctx.fillText(value, canvas_size/2 - 2, canvas_size + 2 - 4)
     ctx.fillText(value, canvas_size/2 - 2, canvas_size - 2 - 4)
     ctx.fillText(value, canvas_size/2 + 2, canvas_size + 2 - 4)
@@ -319,47 +336,3 @@ class PIG.View.Preview extends Backbone.View
     ctx.fillStyle = frontFillStyle
     ctx.shadowBlur = 0
     ctx.fillText(value, canvas_size/2, canvas_size - 4)
-
-  render: ->
-    @$el.append(@temp)
-    @$scaleBar = @$el.find('.mod-scaleRange')
-
-  setFile: (file) ->
-    @model.set('type', file.type)
-    @reader.readAsDataURL(file)
-    @show()
-
-  setFrame: (frame) ->
-    @model.set('frameSrc', frame)
-
-  selectFrame: (frame) ->
-    @model.set('frameSrc', frame)
-
-  setFitScale: (isFit) ->
-    @model.set('isFitScale', isFit)
-
-  setScale: (scale) ->
-    @model.set('scale', scale)
-
-  setMode: (mode) ->
-    @model.set('mode', mode)
-
-  setModeValue: (value) ->
-    @model.set("modeValue-#{@model.get('mode')}", value)
-
-  show: ->
-    @$el.show()
-
-  hide: ->
-    @$el.hide()
-
-  _showScaleBar: ->
-    @$scaleBar.show()
-
-  _hideScaleBar: ->
-    @$scaleBar.hide()
-
-  temp: """
-<div class=\"mod-canvas\"></div>
-<p class="mod-scaleRange"><input type=\"range\" min="0" max="10" step="0.1">アップロードした画像のサイズを調整できます。</p>
-"""

@@ -16,16 +16,21 @@ module.exports = (grunt) ->
         '<%= dirs.libSrc %>jquery-2.0.3.min.js'
         '<%= dirs.libSrc %>underscore-min.js'
         '<%= dirs.libSrc %>backbone-min.js'
+        '<%= dirs.libSrc %>binaryajax.js'
+        '<%= dirs.libSrc %>exif.js'
+        '<%= dirs.libSrc %>megapix-image.js'
       ]
       dest: 'scripts/lib.js'
     }
     app: {
       src: [
         'scripts/tmp/app/*.js'
-        'scripts/tmp/controller/*.js'
+        'scripts/tmp/controller/base.js'
+        'scripts/tmp/controller/app.js'
         'scripts/tmp/model/*.js'
         'scripts/tmp/collection/*.js'
-        'scripts/tmp/view/*.js'
+        'scripts/tmp/view/app.js'
+        'scripts/tmp/view/preview.js'
       ]
       dest: 'scripts/app.js'
     }

@@ -4,26 +4,160 @@
   <meta charset="utf-8">
   <title>パズドラ風アイコンジェネレーター ver.2</title>
   <meta name="viewport" content="width=device-width">
-  <link rel="stylesheet" href="styles/app.css">
-  <script type="text/javascript" src="http://webfont.fontplus.jp/accessor/script/fontplus.js?El7q9AJq3dU%3D&aa=1" charset="utf-8"></script>
+  <link rel="stylesheet" href="styles/main.css">
+  <script src="http://webfont.fontplus.jp/accessor/script/fontplus.js?El7q9AJq3dU%3D" charset="utf-8"></script>
+  <script>
+    (function(FONTPLUS) {
+     // 非同期モード
+      FONTPLUS.async()
+    }(this.FONTPLUS));
+  </script>
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-4011945-9']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+     var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+     ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+  <script src="scripts/lib.js"></script>
+  <script src="scripts/app.js"></script>
 </head>
 <body>
 
-<div class="mod-all">
-  <h1>パズドラ風アイコンジェネレーター ver.2</h1>
-  <p>ファイルを選択→属性を選択→ダウンロード</p>
-  <p class="font-kurokane">Lv.+0123456789最大</p>
-  <div class="mod-select"></div>
+<div class="banner">
+  <script>
+  if ( PIG.isMobile() ) {
+    google_ad_client = "ca-pub-2250259658901185";
+    /* パズドラモバイル */
+    google_ad_slot = "9459562146";
+    google_ad_width = 320;
+    google_ad_height = 50;
+  } else {
+    google_ad_client = "ca-pub-2250259658901185";
+    /* パズドラ */
+    google_ad_slot = "2163420549";
+    google_ad_width = 468;
+    google_ad_height = 60;
+  }
+  </script>
+  <script type="text/javascript" src="http://pagead2.googlesyndication.com/pagead/show_ads.js"></script>
 </div>
 
-<p class="copy">
-  <small><a href="https://twitter.com/5509">@5509</a>, <a href="https://twitter.com/shimael">@shimael（回復属性のフレーム）</a></small>
-</p>
+<div class="app">
+  <div class="logo"><img src="images/logo.png" alt="パズドラ風アイコンジェネレータ ver2" width="267"></div>
+  <div class="btn_area">
+    <a class="btn_flame" href="#" data-pig-frame="flame"><img src="images/btn_flame.png" alt="火属性"></a>
+    <a class="btn_water" href="#" data-pig-frame="water"><img src="images/btn_water.png" alt="水属性"></a>
+    <a class="btn_stone" href="#" data-pig-frame="stone"><img src="images/btn_stone.png" alt="木属性"></a>
+    <a class="btn_light" href="#" data-pig-frame="light"><img src="images/btn_light.png" alt="光属性"></a>
+    <a class="btn_dark" href="#" data-pig-frame="dark"><img src="images/btn_dark.png" alt="闇属性"></a>
+    <a class="btn_sexy" href="#" data-pig-frame="sexy"><img src="images/btn_sexy.png" alt="回復属性"></a>
+    <a class="btn_ojama" href="#" data-pig-frame="ojama"><img src="images/btn_ojama.png" alt="お邪魔属性"></a>
+  </div>
+  <div class="frame_area flame">
+    <div class="frame_main_area">
+      <canvas width="108"></canvas>
+    </div>
+    <div class="left">
+      <a class="frame_double active" href="#" data-pig-sub-frame="double">サブ属性・ダブル</a>
+      <a class="frame_flame" href="#" data-pig-sub-frame="flame">サブ属性・火</a>
+      <a class="frame_water" href="#" data-pig-sub-frame="water">サブ属性・水</a>
+      <a class="frame_stone" href="#" data-pig-sub-frame="stone">サブ属性・木</a>
+    </div>
+    <div class="right">
+      <a class="frame_light" href="#" data-pig-sub-frame="light">サブ属性・光</a>
+      <a class="frame_dark" href="#" data-pig-sub-frame="dark">サブ属性・闇</a>
+      <a class="frame_sexy" href="#" data-pig-sub-frame="sexy">サブ属性・回復</a>
+      <a class="frame_ojama" href="#" data-pig-sub-frame="ojama">サブ属性・お邪魔</a>
+    </div>
+  </div>
+  <div class="select_photo"><input type="file"></div>
+  <div class="scale_photo"><span>拡大</span><input type="range" min="1" max="10" step="0.1" value="1"></div>
+  <div class="input_plus"><span>+</span><input type="text" maxlength="3" data-pig-mode="plus"></div>
+  <div class="input_level"><span>Lv</span><input type="text" maxlength="2" data-pig-mode="lv"></div>
+  <div class="btn_download disabled"><a href="javascript:void(0)" class="download">ダウンロード</a></div>
+</div><!-- // App -->
 
-<script src="scripts/lib.js"></script>
-<script src="scripts/app.js"></script>
+<div class="banner">
+  <script>
+  if ( PIG.isMobile() ) {
+    google_ad_client = "ca-pub-2250259658901185";
+    /* パズドラモバイル */
+    google_ad_slot = "9459562146";
+    google_ad_width = 320;
+    google_ad_height = 50;
+  } else {
+    google_ad_client = "ca-pub-2250259658901185";
+    /* パズドラ */
+    google_ad_slot = "2163420549";
+    google_ad_width = 468;
+    google_ad_height = 60;
+  }
+  </script>
+  <script type="text/javascript" src="http://pagead2.googlesyndication.com/pagead/show_ads.js"></script>
+</div>
+<div class="footer">
+  <div class="inner">
+    <p>パズル＆ドラゴンズのモンスターアイコンみたいなアイコンジェネレータです。Twitterのアイコン等に使ってね。</p>
+    <dl class="news">
+      <dt>2013-9-30</dt>
+      <dd>リニューアルしました。+とレベル表記ができるようになりました！</dd>
+      <dt>2013-9-30</dt>
+      <dd>iPhoneでお使いの方へ：写真を選択する際に、フォトストリーム以外から選択すると、写真が上下反転し高さがつぶれた状態で表示されます。お手数ですが、フォトストリームから選択するか、PC/Macからご利用ください。</dd>
+      <dt>2013-9-30</dt>
+      <dd>Androidでの表示について：リニューアル後も引き続きAndroid端末では動作を保証していません。ご了承ください。</dd>
+    </dl>
+    <ul class="sns_btn">
+      <li>
+        <a href="https://twitter.com/share" class="twitter-share-button" data-text="パズドラ風アイコンジェネレータ" data-lang="ja" data-hashtags="パズドラ">ツイート</a>
+        <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+      </li>
+      <li>
+        <g:plusone size="medium" href="5509.github.com/IconGen/"></g:plusone><script type="text/javascript">(function(){var po=document.createElement("script");po.type="text/javascript";po.async=true;po.src="https://apis.google.com/js/plusone.js";var s=document.getElementsByTagName("script")[0];s.parentNode.insertBefore(po,s);})();</script>
+      </li>
+      <li>
+        <div id="fb-root"></div>
+          <script>(function(d, s, id) {
+            var js, fjs = d.getElementsByTagName(s)[0];
+            if (d.getElementById(id)) return;
+            js = d.createElement(s); js.id = id;
+            js.src = "//connect.facebook.net/en_GB/all.js#xfbml=1&appId=497414760292349";
+            fjs.parentNode.insertBefore(js, fjs);
+          }(document, 'script', 'facebook-jssdk'));</script>
+          <div class="fb-like" data-href="http://5509.github.io/IconGen" data-width="150" data-layout="button_count" data-action="recommend" data-show-faces="false" data-send="true"></div>
+      </li>
+    </ul>
+  </div>
+  <div class="banner">
+    <script>
+    if ( PIG.isMobile() ) {
+      google_ad_client = "ca-pub-2250259658901185";
+      /* パズドラモバイル */
+      google_ad_slot = "9459562146";
+      google_ad_width = 320;
+      google_ad_height = 50;
+    } else {
+      google_ad_client = "ca-pub-2250259658901185";
+      /* パズドラ */
+      google_ad_slot = "2163420549";
+      google_ad_width = 468;
+      google_ad_height = 60;
+    }
+    </script>
+    <script type="text/javascript" src="http://pagead2.googlesyndication.com/pagead/show_ads.js"></script>
+  </div>
+  <p class="credit"><a href="https://twitter.com/5509">@5509</a>, <a href="https://twitter.com/shimael">@shimael</a>, <a href="https://twitter.com/rewish">@rewish</a></p>
+</div>
+
+<div class="loading"><div><div></div></div></div>
+
 <script>
-  window.pig = new PIG.Controller.Puzz()
+  console.log('hogefugapiyo')
+  window.pig = new PIG.Controller.App()
 </script>
 
 </body>

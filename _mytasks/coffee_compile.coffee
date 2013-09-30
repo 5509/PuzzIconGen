@@ -8,10 +8,11 @@ module.exports = (grunt) ->
       cwd: '_sources/scripts/coffee'
       src: [
         'app/*.coffee'
-        'controller/*.coffee'
-        'collection/*.coffee'
-        'model/*.coffee'
-        'view/*.coffee'
+        'controller/base.coffee'
+        'controller/app.coffee'
+        'model/app.coffee'
+        'view/app.coffee'
+        'view/preview.coffee'
       ]
       dest: 'scripts/tmp'
       ext: '.js'

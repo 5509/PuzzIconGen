@@ -7,7 +7,7 @@ module.exports = (grunt) ->
       files: [{
         expand: true
         cwd: '_sources/styles'
-        src: ['app.scss']
+        src: ['main.scss']
         dest: 'styles'
         ext: '.css'
       }]
